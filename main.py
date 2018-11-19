@@ -1,6 +1,6 @@
 import torchvision.models as models
-from datagens import CifarDatagen
-from trainers import Trainer
+from datagens.cifar import CifarDatagen
+from trainers.trainer import Trainer
 
 # Define datagen
 datagen = CifarDatagen()

@@ -4,17 +4,16 @@ import torch.nn as nn
 
 class Trainer:
     def __init__(self, datagen, model):
-        self.datagen = datagen
+        self.train_loader = datagen.train_loader
+        self.test_loader = datagen.test_loader
         self.model = model
+        self.device = device = torch.device('cuda' if torch.cuda.
+                                            is_available() else 'cpu')
 
-    def run(self):
-        train_loader = self.datagen.train_loader
-        test_loader = self.datagen.test_loader
-        model = self.model
-
+    def run(self, num_epochs=80, learning_rate=0.001):
         # Loss and optimizer
         criterion = nn.CrossEntropyLoss()
-        optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+        optimizer = torch.optim.Adam(self.model.parameters(), lr=learning_rate)
 
         # For updating learning rate
         def update_lr(optimizer, lr):
@@ -22,15 +21,15 @@ class Trainer:
                 param_group['lr'] = lr
 
         # Train the model
-        total_step = len(train_loader)
+        total_step = len(self.train_loader)
         curr_lr = learning_rate
         for epoch in range(num_epochs):
-            for i, (images, labels) in enumerate(train_loader):
-                images = images.to(device)
-                labels = labels.to(device)
+            for i, (images, labels) in enumerate(self.train_loader):
+                images = images.to(self.device)
+                labels = labels.to(self.device)
 
                 # Forward pass
-                outputs = model(images)
+                outputs = self.model(images)
                 loss = criterion(outputs, labels)
 
                 # Backward and optimize
@@ -48,14 +47,14 @@ class Trainer:
                 update_lr(optimizer, curr_lr)
 
         # Test the model
-        model.eval()
+        self.model.eval()
         with torch.no_grad():
             correct = 0
             total = 0
-            for images, labels in test_loader:
-                images = images.to(device)
-                labels = labels.to(device)
-                outputs = model(images)
+            for images, labels in self.test_loader:
+                images = images.to(self.device)
+                labels = labels.to(self.device)
+                outputs = self.model(images)
                 _, predicted = torch.max(outputs.data, 1)
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
@@ -64,4 +63,4 @@ class Trainer:
                 100 * correct / total))
 
         # Save the model checkpoint
-        torch.save(model.state_dict(), 'resnet.ckpt')
+        torch.save(self.model.state_dict(), 'resnet.ckpt')

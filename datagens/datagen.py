@@ -1,9 +1,10 @@
+import torch
 import torchvision
 import torchvision.transforms as transforms
 
 
-class DataGen:
-    def __init__(self):
+class Datagen:
+    def __init__(self, batch_size=100):
         train_dataset = torchvision.datasets.MNIST(
             root='../../data',
             train=True,

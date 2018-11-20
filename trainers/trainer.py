@@ -6,9 +6,9 @@ class Trainer:
     def __init__(self, datagen, model):
         self.train_loader = datagen.train_loader
         self.test_loader = datagen.test_loader
-        self.model = model
         self.device = device = torch.device('cuda' if torch.cuda.
                                             is_available() else 'cpu')
+        self.model = model.to(self.device)
 
     def run(self, num_epochs=80, learning_rate=0.001):
         # Loss and optimizer

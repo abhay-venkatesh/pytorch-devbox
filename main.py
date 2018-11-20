@@ -1,15 +1,9 @@
-import torchvision.models as models
 from datagens.cifar import CifarDatagen
 from trainers.trainer import Trainer
+from models.resnet import ResNet
+from models.resnet import ResidualBlock
 
-# Define datagen
 datagen = CifarDatagen()
-
-# Define model
-model = models.resnet18()
-
-# Define trainer
+model = ResNet(ResidualBlock, [2, 2, 2])
 trainer = Trainer(datagen, model)
-
-# Execute
 trainer.run()

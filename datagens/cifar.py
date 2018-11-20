@@ -11,7 +11,8 @@ class CifarDatagen(Datagen):
             transforms.Pad(4),
             transforms.RandomHorizontalFlip(),
             transforms.RandomCrop(32),
-            transforms.ToTensor()])
+            transforms.ToTensor()
+        ])
 
         train_dataset = torchvision.datasets.CIFAR10(
             root='../../data/', train=True, transform=transform, download=True)

@@ -6,7 +6,6 @@ import torchvision.transforms as transforms
 
 class CifarDatagen(Datagen):
     def __init__(self):
-        # Image preprocessing modules
         transform = transforms.Compose([
             transforms.Pad(4),
             transforms.RandomHorizontalFlip(),

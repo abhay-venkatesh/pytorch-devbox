@@ -1,9 +1,9 @@
 from datagens.cifar import CifarDatagen
 from trainers.trainer import Trainer
-from models.resnet import ResNet
-from models.resnet import ResidualBlock
+from models.resnet import resnet18
+from models.resnet import BasicBlock
 
 datagen = CifarDatagen()
-model = ResNet(ResidualBlock, [2, 2, 2])
+model = resnet18()
 trainer = Trainer(datagen, model)
 trainer.run()

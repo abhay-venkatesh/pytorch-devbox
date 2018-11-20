@@ -1,2 +1,2 @@
 .vscode
-./trainers/__pycache__/trainer.cpython-36.pyc
+*.pyc

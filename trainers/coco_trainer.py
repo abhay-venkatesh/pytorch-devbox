@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torchvision.transforms as transforms
 
 
 class Trainer:
@@ -11,28 +12,33 @@ class Trainer:
         self.model = model.to(self.device)
 
     def run(self, num_epochs=80, learning_rate=0.001):
-        # Loss and optimizer
         criterion = nn.CrossEntropyLoss()
         optimizer = torch.optim.Adam(self.model.parameters(), lr=learning_rate)
 
-        # For updating learning rate
         def update_lr(optimizer, lr):
             for param_group in optimizer.param_groups:
                 param_group['lr'] = lr
 
-        # Train the model
+        def label_transform(labels):
+            tensor_list = labels[0]['segmentation'][0]
+            label_tensor = torch.stack(tensor_list)
+            print(label_tensor)
+            label_tensor = label_tensor.unsqueeze(0)
+            img = transforms.ToPILImage()(label_tensor)
+            img.show()
+            return label_tensor
+
         total_step = len(self.train_loader)
         curr_lr = learning_rate
         for epoch in range(num_epochs):
             for i, (images, labels) in enumerate(self.train_loader):
                 images = images.to(self.device)
+                labels = label_transform(labels)
                 labels = labels.to(self.device)
 
-                # Forward pass
                 outputs = self.model(images)
                 loss = criterion(outputs, labels)
 
-                # Backward and optimize
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
@@ -41,12 +47,10 @@ class Trainer:
                     print("Epoch [{}/{}], Step [{}/{}] Loss: {:.4f}".format(
                         epoch + 1, num_epochs, i + 1, total_step, loss.item()))
 
-            # Decay learning rate
             if (epoch + 1) % 20 == 0:
                 curr_lr /= 3
                 update_lr(optimizer, curr_lr)
 
-        # Test the model
         self.model.eval()
         with torch.no_grad():
             correct = 0
@@ -62,5 +66,4 @@ class Trainer:
             print('Accuracy of the model on the test images: {} %'.format(
                 100 * correct / total))
 
-        # Save the model checkpoint
         torch.save(self.model.state_dict(), 'resnet.ckpt')

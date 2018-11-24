@@ -101,7 +101,7 @@ class conv2DBatchNormRelu(nn.Module):
 
     def forward(self, inputs):
         outputs = self.cbr_unit(inputs)
-        return output
+        return outputs
 
 
 class conv2DGroupNormRelu(nn.Module):

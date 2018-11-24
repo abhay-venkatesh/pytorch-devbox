@@ -1,8 +1,8 @@
-from datagens.cifar import CifarDatagen
-from models.resnet import resnet101
+from datagens.coco import CocoDatagen
+from models.deeplab import ASPP
 from trainers.trainer import Trainer
 
-datagen = CifarDatagen()
-model = resnet101()
+datagen = CocoDatagen()
+model = ASPP()
 trainer = Trainer(datagen, model)
 trainer.run()

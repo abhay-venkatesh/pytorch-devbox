@@ -7,9 +7,7 @@ import torchvision.transforms as transforms
 class CocoDatagen(Datagen):
     def __init__(self):
         train_dataset = torchvision.datasets.CocoDetection(
-            root='../../data/',
-            transform=transforms.ToTensor(),
-            download=True)
+            root='../../data/', annFile='../../', transform=transforms.ToTensor())
 
         test_dataset = torchvision.datasets.CocoDetection(
             root='../../data/', transform=transforms.ToTensor())

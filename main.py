@@ -1,8 +1,8 @@
 from datagens.coco import CocoDatagen
-from models.deeplab import ASPP
+from models.segnet import SegNet
 from trainers.trainer import Trainer
 
 datagen = CocoDatagen()
-model = ASPP(3, 2)
+model = SegNet(2, 3)
 trainer = Trainer(datagen, model)
 trainer.run()

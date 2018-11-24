@@ -3,6 +3,6 @@ from models.deeplab import ASPP
 from trainers.trainer import Trainer
 
 datagen = CocoDatagen()
-model = ASPP()
+model = ASPP(3, 2)
 trainer = Trainer(datagen, model)
 trainer.run()

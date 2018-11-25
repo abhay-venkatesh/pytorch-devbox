@@ -20,12 +20,8 @@ class Trainer:
                 param_group['lr'] = lr
 
         def label_transform(labels):
-            tensor_list = labels[0]['segmentation'][0]
-            label_tensor = torch.stack(tensor_list)
-            print(label_tensor)
-            label_tensor = label_tensor.unsqueeze(0)
-            img = transforms.ToPILImage()(label_tensor)
-            img.show()
+            tensor_list = labels[0]['bbox']
+            print(tensor_list)
             return label_tensor
 
         total_step = len(self.train_loader)

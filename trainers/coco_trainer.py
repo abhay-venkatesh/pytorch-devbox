@@ -20,9 +20,26 @@ class Trainer:
                 param_group['lr'] = lr
 
         def label_transform(labels):
-            tensor_list = labels[0]['bbox']
-            print(tensor_list)
-            return label_tensor
+            tensor_batch = []
+            for label in labels:
+                print(label)
+                rle_str = label["segmentation"]["counts"]
+                print(rle_str)
+                height = label["segmentation"]["size"][0]
+                width = label["segmentation"]["size"][1]
+                rows, cols = height, width
+                rle_nums = [int(numstring) for numstring in rle_str.split(' ')]
+                rle_pairs = np.array(rle_nums).reshape(-1, 2)
+                img = np.zeros(rows * cols, dtype=np.uint8)
+                for i, length in rle_pairs:
+                    i -= 1
+                    img[i:i + length] = 255
+                img = img.reshape(cols, rows)
+                img = img.T
+                tensor = torch.from_numpy(img).float()
+                resized = transforms.Resize([426, 640])(tensor)
+                tensor_batch.append(resized)
+            return torch.stack(tensor_batch)
 
         total_step = len(self.train_loader)
         curr_lr = learning_rate

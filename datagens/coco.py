@@ -1,7 +1,7 @@
 import torch
 import torchvision.transforms as transforms
 from datagens.datagen import Datagen
-from datasets.coco import CocoStuff
+import torchvision
 
 
 class CocoDatagen(Datagen):
@@ -12,12 +12,12 @@ class CocoDatagen(Datagen):
 
         train_dataset = torchvision.datasets.CocoDetection(
             root='../../data/coco/train2017',
-            annFile='../../data/coco/annotations/instances_train2017.json',
+            annFile='../../data/coco/annotations/stuff_train2017.json',
             transform=transform)
 
         test_dataset = torchvision.datasets.CocoDetection(
             root='../../data/coco/val2017',
-            annFile='../../data/coco/annotations/',
+            annFile='../../data/coco/annotations/stuff_val2017.json',
             transform=transform)
 
         self.train_loader = torch.utils.data.DataLoader(

@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
+from pycocotools.coco import COCO
 
 
 class Trainer:
@@ -20,33 +21,49 @@ class Trainer:
                 param_group['lr'] = lr
 
         def label_transform(labels):
+            """
+            labels = [
+                {
+                    category_id: Tensor,
+                    segmentation: {
+                        counts: [
+                                "RLE STRING",
+                                ...
+                                (len(counts) == len(category_id))
+                            ],
+                        size: [height, width]
+                    }
+                },
+                ...
+            ]
+            """
             tensor_batch = []
-            for label in labels:
-                print(label)
-                rle_str = label["segmentation"]["counts"]
-                print(rle_str)
-                height = label["segmentation"]["size"][0]
-                width = label["segmentation"]["size"][1]
-                rows, cols = height, width
-                rle_nums = [int(numstring) for numstring in rle_str.split(' ')]
-                rle_pairs = np.array(rle_nums).reshape(-1, 2)
-                img = np.zeros(rows * cols, dtype=np.uint8)
-                for i, length in rle_pairs:
-                    i -= 1
-                    img[i:i + length] = 255
-                img = img.reshape(cols, rows)
-                img = img.T
-                tensor = torch.from_numpy(img).float()
+            for label in labels[:1]:
+                mask = COCO.annToMask(label)
+                tensor = torch.from_numpy(mask).float()
                 resized = transforms.Resize([426, 640])(tensor)
                 tensor_batch.append(resized)
             return torch.stack(tensor_batch)
+            
+        def rle_func():
+            rows, cols = height, width
+            rle_nums = [int(numstring) for numstring in rle_str.split(' ')]
+            rle_pairs = np.array(rle_nums).reshape(-1, 2)
+            img = np.zeros(rows * cols, dtype=np.uint8)
+            for i, length in rle_pairs:
+                i -= 1
+                img[i:i + length] = 255
+            img = img.reshape(cols, rows)
+            img = img.T
+            return img
 
         total_step = len(self.train_loader)
         curr_lr = learning_rate
         for epoch in range(num_epochs):
             for i, (images, labels) in enumerate(self.train_loader):
                 images = images.to(self.device)
-                labels = label_transform(labels)
+                # labels = label_transform(labels)
+                # print(len(labels))
                 labels = labels.to(self.device)
 
                 outputs = self.model(images)

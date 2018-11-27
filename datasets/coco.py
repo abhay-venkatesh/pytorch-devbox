@@ -1,9 +1,10 @@
 # Reference: https://github.com/pytorch/vision/blob/master/torchvision/datasets/coco.py
 
-import torch.utils.data as data
-from PIL import Image
+import numpy as np
 import os
 import os.path
+from PIL import Image
+import torch.utils.data as data
 
 
 class CocoStuff(data.Dataset):
@@ -25,21 +26,56 @@ class CocoStuff(data.Dataset):
         coco = self.coco
         img_id = self.ids[index]
         ann_ids = coco.getAnnIds(imgIds=img_id)
-        target = coco.loadAnns(ann_ids)
+        anns = coco.loadAnns(ann_ids)
+
+        # Specify class of interest
+        target = self._anns_to_mask(anns, 157)
 
         path = coco.loadImgs(img_id)[0]['file_name']
 
         img = Image.open(os.path.join(self.root, path)).convert('RGB')
+        img.show()
         if self.transform is not None:
             img = self.transform(img)
 
         if self.target_transform is not None:
             target = self.target_transform(target)
-
+        
         return img, target
+
+    def _print_np_array_mask(self, mask):
+        mask_ = np.multiply(mask, 200)
+        Image.fromarray(mask_).show()
+        
+    def _get_cat_from_ann(self, ann):
+        cats = self.coco.loadCats(ids=ann["category_id"])
+        print(cats)
+
+    def _anns_to_mask(self, anns, positive_class=183, height=426, width=640):
+        for ann in anns:
+            if ann["category_id"] == positive_class:
+                mask = self.coco.annToMask(ann)
+                return Image.fromarray(mask)
+        arr = np.zeros((height, width))
+        return Image.fromarray(arr)
 
     def __len__(self):
         return len(self.ids)
+
+    def __repr__(self):
+        fmt_str = 'Dataset ' + self.__class__.__name__ + '\n'
+        fmt_str += '    Number of datapoints: {}\n'.format(self.__len__())
+        fmt_str += '    Root Location: {}\n'.format(self.root)
+        tmp = '    Transforms (if any): '
+        fmt_str += '{0}{1}\n'.format(
+            tmp,
+            self.transform.__repr__().replace('\n', '\n' + ' ' * len(tmp)))
+        tmp = '    Target Transforms (if any): '
+        fmt_str += '{0}{1}'.format(
+            tmp,
+            self.target_transform.__repr__().replace('\n',
+                                                     '\n' + ' ' * len(tmp)))
+        return fmt_str
 
 
 class CocoCaptions(data.Dataset):

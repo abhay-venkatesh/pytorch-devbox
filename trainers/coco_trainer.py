@@ -13,7 +13,7 @@ class Trainer:
         self.model = model.to(self.device)
 
     def run(self, num_epochs=80, learning_rate=0.001):
-        criterion = nn.CrossEntropyLoss()
+        criterion = nn.MSELoss()
         optimizer = torch.optim.Adam(self.model.parameters(), lr=learning_rate)
 
         def update_lr(optimizer, lr):

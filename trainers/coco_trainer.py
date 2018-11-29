@@ -47,6 +47,8 @@ class Trainer:
                     break
             return images_, labels_
 
+        # TODO: Change total_step
+        # TODO: Refactor this into a dataloader code
         total_step = len(self.train_loader)
         curr_lr = learning_rate
         for epoch in range(num_epochs):

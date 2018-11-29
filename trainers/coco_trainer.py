@@ -53,7 +53,6 @@ class Trainer:
             data_itr = iter(self.train_loader)
             i = 0
             for images, labels in data_itr:
-                print(labels)
                 i += 1
                 images_, labels_ = build_batch(data_itr, images, labels)
                 if len(images_) < batch_size:

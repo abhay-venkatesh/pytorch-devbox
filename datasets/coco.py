@@ -4,7 +4,9 @@ import numpy as np
 import os
 import os.path
 from PIL import Image
+import torch
 import torch.utils.data as data
+import torchvision.transforms as transforms
 
 
 class CocoStuff(data.Dataset):
@@ -29,8 +31,11 @@ class CocoStuff(data.Dataset):
         anns = coco.loadAnns(ann_ids)
 
         # Specify class of interest
-        target = self._anns_to_mask(anns, 157)
-
+        # 157 is Sky
+        target, contains_class = self._anns_to_mask(anns, 157)
+        target = torch.tensor(target)
+        target = transforms.Resize([426, 640])(target)
+        
         path = coco.loadImgs(img_id)[0]['file_name']
 
         img = Image.open(os.path.join(self.root, path)).convert('RGB')
@@ -39,8 +44,8 @@ class CocoStuff(data.Dataset):
 
         if self.target_transform is not None:
             target = self.target_transform(target)
-            
-        return img, target
+   
+        return img, (target, contains_class)
 
     def _print_np_array_mask(self, mask):
         mask_ = np.multiply(mask, 200)
@@ -54,9 +59,9 @@ class CocoStuff(data.Dataset):
         for ann in anns:
             if ann["category_id"] == positive_class:
                 mask = self.coco.annToMask(ann)
-                return Image.fromarray(mask)
+                return mask, 1
         arr = np.zeros((height, width))
-        return Image.fromarray(arr)
+        return arr, 0
 
     def __len__(self):
         return len(self.ids)

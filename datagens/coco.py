@@ -13,17 +13,15 @@ class CocoDatagen(Datagen):
         train_dataset = CocoStuff(
             root='../../data/coco/train2017',
             annFile='../../data/coco/annotations/stuff_train2017.json',
-            transform=transform,
-            target_transform=transform)
+            transform=transform)
 
         test_dataset = CocoStuff(
             root='../../data/coco/val2017',
             annFile='../../data/coco/annotations/stuff_val2017.json',
-            transform=transform,
-            target_transform=transform)
+            transform=transform)
 
         self.train_loader = torch.utils.data.DataLoader(
-            dataset=train_dataset, batch_size=3, shuffle=True)
+            dataset=train_dataset, batch_size=1, shuffle=True)
 
         self.test_loader = torch.utils.data.DataLoader(
-            dataset=test_dataset, batch_size=3, shuffle=False)
+            dataset=test_dataset, batch_size=1, shuffle=False)

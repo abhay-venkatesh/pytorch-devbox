@@ -17,7 +17,7 @@ class ImageInspector:
         arr = np.asarray(self.img, dtype="int32")
         print(np.unique(arr))
         
-        
-ii = ImageInspector("./images/000000000009.png")
-ii.find_unique_numbers()
+if __name__ == "__main__":
+    ii = ImageInspector("./images/000000000009.png")
+    ii.find_unique_numbers()
 

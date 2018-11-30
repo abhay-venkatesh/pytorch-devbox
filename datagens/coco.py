@@ -25,6 +25,3 @@ class CocoDatagen(Datagen):
 
         self.test_loader = torch.utils.data.DataLoader(
             dataset=test_dataset, batch_size=1, shuffle=False)
-
-class CocoDataLoader():
-    pass

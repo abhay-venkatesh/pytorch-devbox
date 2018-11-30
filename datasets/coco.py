@@ -3,7 +3,7 @@
 import numpy as np
 import os
 import os.path
-from PIL import Image
+from PIL import Image, ImageDraw
 from skimage.transform import resize
 import torch
 import torch.utils.data as data
@@ -33,7 +33,7 @@ class CocoStuff(data.Dataset):
 
         # Specify class of interest
         # 157 is Sky
-        target, contains_class = self._anns_to_mask(anns, 157)
+        target, contains_class = self._anns_to_seg(img_id, anns, 157)
         target_ = resize(
             target, (426, 640), anti_aliasing=False, mode='constant')
         target_ = np.where(target_ > 0, 1, 0)
@@ -58,11 +58,41 @@ class CocoStuff(data.Dataset):
         cats = self.coco.loadCats(ids=ann["category_id"])
         print(cats)
 
-    def _anns_to_mask(self, anns, positive_class=157, height=426, width=640):
+    def _draw_bbox_mask(self, img_id, bbox):
+        img_height = self.coco.loadImgs(img_id)[0]['height']
+        img_width = self.coco.loadImgs(img_id)[0]['width']
+        seg = Image.fromarray(np.zeros((img_height, img_width)))
+        draw = ImageDraw.Draw(seg)
+        x, y, mask_width, mask_height = bbox
+        rect = self._get_rect(x, y, mask_width, mask_height, 0)
+        draw.polygon([tuple(p) for p in rect], fill=1)
+        np_seg = np.asarray(seg)
+        self._print_np_array_mask(np_seg)
+        return np_seg
+
+    def _get_rect(self, x, y, width, height, angle):
+        # Reference: https://stackoverflow.com/questions/12638790/drawing-a-rectangle-inside-a-2d-numpy-array
+        rect = np.array([(0, 0), (width, 0), (width, height), (0, height),
+                         (0, 0)])
+        theta = (np.pi / 180.0) * angle
+        R = np.array([[np.cos(theta), -np.sin(theta)],
+                      [np.sin(theta), np.cos(theta)]])
+        offset = np.array([x, y])
+        transformed_rect = np.dot(rect, R) + offset
+        return transformed_rect
+
+    def _anns_to_seg(self,
+                     img_id,
+                     anns,
+                     positive_class=157,
+                     height=426,
+                     width=640):
+
         for ann in anns:
             if ann["category_id"] == positive_class:
-                mask = self.coco.annToMask(ann)
-                return mask, 1
+                bbox = ann["bbox"]
+                seg = self._draw_bbox_mask(img_id, bbox)
+                return seg, 1
         arr = np.zeros((height, width))
         return arr, 0
 

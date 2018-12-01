@@ -5,19 +5,19 @@ from datasets.coco import CocoStuff
 
 
 class CocoDatagen(Datagen):
-    def __init__(self):
+    def __init__(self, cfg):
         transform = transforms.Compose(
             [transforms.Resize([426, 640]),
              transforms.ToTensor()])
 
         train_dataset = CocoStuff(
-            root='../../data/coco/train2017',
-            annFile='../../data/coco/annotations/stuff_train2017.json',
+            root=cfg["train"]["root"],
+            annFile=cfg["train"]["ann"],
             transform=transform)
 
         test_dataset = CocoStuff(
-            root='../../data/coco/val2017',
-            annFile='../../data/coco/annotations/stuff_val2017.json',
+            root=cfg["test"]["root"],
+            annFile=cfg["test"]["ann"],
             transform=transform)
 
         self.train_loader = torch.utils.data.DataLoader(

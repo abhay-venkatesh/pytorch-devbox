@@ -67,7 +67,6 @@ class CocoStuff(data.Dataset):
         rect = self._get_rect(x, y, mask_width, mask_height, 0)
         draw.polygon([tuple(p) for p in rect], fill=1)
         np_seg = np.asarray(seg)
-        self._print_np_array_mask(np_seg)
         return np_seg
 
     def _get_rect(self, x, y, width, height, angle):

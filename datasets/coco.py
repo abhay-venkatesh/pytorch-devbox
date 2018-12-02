@@ -11,13 +11,22 @@ import torchvision.transforms as transforms
 
 
 class CocoStuff(data.Dataset):
-    def __init__(self, root, annFile, transform=None, target_transform=None):
+    """ Binary stuff classification reader """
+
+    def __init__(self,
+                 root,
+                 annFile,
+                 target_class=157,
+                 transform=None,
+                 target_transform=None):
         from pycocotools.coco import COCO
         self.root = root
         self.coco = COCO(annFile)
         self.ids = list(self.coco.imgs.keys())
         self.transform = transform
         self.target_transform = target_transform
+        self.target_class = target_class
+        self.total_steps = len(self.coco.getImgIds(catIds=target_class))
 
     def __getitem__(self, index):
         """
@@ -31,9 +40,8 @@ class CocoStuff(data.Dataset):
         ann_ids = coco.getAnnIds(imgIds=img_id)
         anns = coco.loadAnns(ann_ids)
 
-        # Specify class of interest
-        # 157 is Sky
-        target, contains_class = self._anns_to_seg(img_id, anns, 157)
+        target, contains_class = self._anns_to_seg(img_id, anns,
+                                                   self.target_class)
         target_ = resize(
             target, (426, 640), anti_aliasing=False, mode='constant')
         target_ = np.where(target_ > 0, 1, 0)

@@ -8,6 +8,7 @@ import numpy as np
 
 class Trainer:
     def __init__(self, datagen, model):
+        self.datagen = datagen
         self.train_loader = datagen.train_loader
         self.test_loader = datagen.test_loader
         self.device = device = torch.device('cuda' if torch.cuda.
@@ -47,8 +48,7 @@ class Trainer:
                     break
             return images_, labels_
 
-        # TODO: Change total_step
-        total_step = len(self.train_loader)
+        total_step = self.datagen.total_steps
         curr_lr = learning_rate
         for epoch in range(num_epochs):
             data_itr = iter(self.train_loader)

@@ -10,7 +10,7 @@ def UnbiasedPULoss(X, A, rho=0.7):
     """ X: outputs
         A: labels
         rho: noise rate """
-    pass
+    return 0.0
 
 
 class Trainer:

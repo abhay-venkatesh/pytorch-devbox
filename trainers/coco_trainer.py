@@ -1,16 +1,23 @@
+from PIL import Image
+import numpy as np
+import os.path
+from pycocotools.coco import COCO
 import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
-from pycocotools.coco import COCO
-from PIL import Image
-import numpy as np
 
 
 def UnbiasedPULoss(X, A, rho=0.7):
     """ X: outputs
         A: labels
         rho: noise rate """
-    return 0.0
+    X_ = (X - 1).pow(2)
+    numer = X_ - (rho * (X.pow(2)))
+    frac = (numer / (1 - rho))
+    positive_case = frac * A
+    zeroth_case = (1 - A) * (X.pow(2))
+    loss = positive_case + zeroth_case
+    return loss.sum()
 
 
 class Trainer:
@@ -23,6 +30,10 @@ class Trainer:
         self.model = model.to(self.device)
 
     def run(self, batch_size=3, num_epochs=80, learning_rate=0.001):
+        model_path = './checkpoints/resnet.ckpt'
+        if os.path.isfile(model_path):
+            self.model.load_state_dict(torch.load(model_path))
+
         criterion = nn.MSELoss()
         optimizer = torch.optim.Adam(self.model.parameters(), lr=learning_rate)
 
@@ -72,6 +83,7 @@ class Trainer:
 
                 outputs = self.model(images)
                 loss = criterion(outputs, labels)
+                # loss = UnbiasedPULoss(outputs, labels)
 
                 optimizer.zero_grad()
                 loss.backward()
@@ -80,6 +92,11 @@ class Trainer:
                 if (i + 1) % 100 == 0:
                     print("Epoch [{}/{}], Step [{}/{}] Loss: {:.4f}".format(
                         epoch + 1, num_epochs, i + 1, total_step, loss.item()))
+
+                # Save the model checkpoint
+                if (i + 1) % 1000 == 0:
+                    torch.save(self.model.state_dict(),
+                               './checkpoints/resnet.ckpt')
 
             if (epoch + 1) % 20 == 0:
                 curr_lr /= 3

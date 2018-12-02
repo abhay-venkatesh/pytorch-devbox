@@ -1,4 +1,3 @@
-import os.path
 import torch
 import torch.nn as nn
 
@@ -12,11 +11,6 @@ class Trainer:
         self.model = model.to(self.device)
 
     def run(self, num_epochs=80, learning_rate=0.001):
-        # Load state 
-        model_path = './checkpoints/resnet.ckpt'
-        if os.path.isfile(model_path):
-            self.model.load_state_dict(torch.load(model_path))
-
         # Loss and optimizer
         criterion = nn.CrossEntropyLoss()
         optimizer = torch.optim.Adam(self.model.parameters(), lr=learning_rate)
@@ -47,14 +41,12 @@ class Trainer:
                     print("Epoch [{}/{}], Step [{}/{}] Loss: {:.4f}".format(
                         epoch + 1, num_epochs, i + 1, total_step, loss.item()))
 
-                # Save the model checkpoint
-                if (i + 1) % 1000 == 0:
-                    torch.save(self.model.state_dict(), './checkpoints/resnet.ckpt')
-
             # Decay learning rate
             if (epoch + 1) % 20 == 0:
                 curr_lr /= 3
                 update_lr(optimizer, curr_lr)
+
+            torch.save(self.model.state_dict(), './checkpoints/resnet.ckpt')
 
         # Test the model
         self.model.eval()

@@ -46,8 +46,6 @@ class Trainer:
                 curr_lr /= 3
                 update_lr(optimizer, curr_lr)
 
-            torch.save(self.model.state_dict(), './checkpoints/resnet.ckpt')
-
         # Test the model
         self.model.eval()
         with torch.no_grad():
@@ -63,4 +61,6 @@ class Trainer:
 
             print('Accuracy of the model on the test images: {} %'.format(
                 100 * correct / total))
+
+        torch.save(self.model.state_dict(), './checkpoints/resnet.ckpt')
 

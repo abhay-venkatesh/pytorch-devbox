@@ -116,5 +116,3 @@ class Trainer:
 
             print('Accuracy of the model on the test images: {} %'.format(
                 100 * correct / total))
-
-        torch.save(self.model.state_dict(), 'resnet.ckpt')

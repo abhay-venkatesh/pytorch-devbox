@@ -6,6 +6,13 @@ from PIL import Image
 import numpy as np
 
 
+def UnbiasedPULoss(X, A, rho=0.7):
+    """ X: outputs
+        A: labels
+        rho: noise rate """
+    pass
+
+
 class Trainer:
     def __init__(self, datagen, model):
         self.datagen = datagen

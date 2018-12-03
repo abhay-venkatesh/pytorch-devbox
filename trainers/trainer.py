@@ -5,7 +5,32 @@ from pycocotools.coco import COCO
 import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
-from utils.logger import Logger
+from trainers.utils.logger import Logger
+
+
+class Batcher:
+    def __init__(self, loader, batch_size):
+        self.loader = iter(loader)
+        self.batch_size = batch_size
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        images, labels = [], []
+        while len(images_) < batch_size:
+            try:
+                image, label = next(data_itr)
+                comp_tensor = torch.ones((1), dtype=torch.long)
+                if torch.eq(label[1], comp_tensor):
+                    images.extend(image)
+                    labels.append(label[0])
+            except StopIteration:
+                break
+        if len(images) < batch_size:
+            raise StopIteration
+        else:
+            return images, labels
 
 
 def UnbiasedPULoss(X, A, rho=0.7):
@@ -26,52 +51,36 @@ class Trainer:
         self.datagen = datagen
         self.train_loader = datagen.train_loader
         self.test_loader = datagen.test_loader
-        self.device = device = torch.device('cuda' if torch.cuda.
-                                            is_available() else 'cpu')
+        self.device = torch.device('cuda' if torch.cuda.
+                                   is_available() else 'cpu')
         self.model = model.to(self.device)
         self.config = config
-        self.experiment_root = "./experiments/" + experiment_name + "/"
-        self.logger = Logger(self.experiment_root)
+        self.parameters = self.config["parameters"]
+        self.experiment_name = self.config["name"]
+        self.experiment_root = "./experiments/" + self.experiment_name + "/"
+        self.log_path = self.experiment_root + "/logs/"
+        self.logger = Logger(self.log_path)
+
+    def update_lr(self, optimizer, lr):
+        for param_group in optimizer.param_groups:
+            param_group['lr'] = lr
+
+    def print_image(self):
+        mask = squeezed.numpy()
+        mask_ = np.multiply(mask, 200)
+        Image.fromarray(mask_).show()
+        seg.show()
+
+    def write_checkpoint(self, epoch):
+        checkpoint_filename = str(epoch) + ".ckpt"
+        checkpoint_path = (
+            self.experiment_root + "checkpoints/" + checkpoint_filename)
+        torch.save(self.model.state_dict(), checkpoint_filename)
 
     def run(self, checkpoint_path):
-        def update_lr(optimizer, lr):
-            for param_group in optimizer.param_groups:
-                param_group['lr'] = lr
-
-        def print_image():
-            mask = squeezed.numpy()
-            mask_ = np.multiply(mask, 200)
-            Image.fromarray(mask_).show()
-            seg.show()
-
-        def build_batch(data_itr, images, labels):
-            images_ = []
-            labels_ = []
-            comp_tensor = torch.ones((1), dtype=torch.long)
-            if torch.eq(labels[1], comp_tensor):
-                images_.extend(images)
-                labels_.append(labels[0])
-            while len(images_) < batch_size:
-                try:
-                    images, labels = next(data_itr)
-                    comp_tensor = torch.ones((1), dtype=torch.long)
-                    if torch.eq(labels[1], comp_tensor):
-                        images_.extend(images)
-                        labels_.append(labels[0])
-                except StopIteration:
-                    break
-            return images_, labels_
-
-        def write_checkpoint(epoch):
-            checkpoint_filename = str(epoch) + ".ckpt"
-            checkpoint_path = self.experiment_root + checkpoint_filename
-            torch.save(self.model.state_dict(), checkpoint_filename)
-
-        experiment_name = self.config["name"]
-        parameters = self.config["parameters"]
-        num_epochs = int(parameters["epochs"])
-        batch_size = int(parameters["batch_size"])
-        learning_rate = int(parameters["learning_rate"])
+        num_epochs = int(self.parameters["epochs"])
+        batch_size = int(self.parameters["batch_size"])
+        learning_rate = int(self.parameters["learning_rate"])
 
         if checkpoint_path:
             epochs_done = int(checkpoint_path.split('.')[1].split("/")[3])
@@ -84,13 +93,8 @@ class Trainer:
         total_step = self.datagen.total_steps
         curr_lr = learning_rate
         for epoch in range(num_epochs):
-            data_itr = iter(self.train_loader)
-            step = 0
-            for images, labels in data_itr:
-                step += 1
-                images_, labels_ = build_batch(data_itr, images, labels)
-                if len(images_) < batch_size:
-                    break
+            batcher = Batcher(self.train_loader)
+            for step, images, labels in enumerate(batcher):
                 images = torch.stack(images_)
                 labels = torch.stack(labels_)
                 images = images.to(self.device)
@@ -98,7 +102,6 @@ class Trainer:
 
                 outputs = self.model(images)
                 loss = criterion(outputs, labels)
-                # loss = UnbiasedPULoss(outputs, labels)
 
                 optimizer.zero_grad()
                 loss.backward()
@@ -110,15 +113,16 @@ class Trainer:
                         loss.item()))
 
                     info = {'loss': loss.item()}
-                    self.logger.log(info, step)
+                    self.logger.log(model, info, step)
 
             if (epoch + 1) % 20 == 0:
                 curr_lr /= 3
-                update_lr(optimizer, curr_lr)
+                self.update_lr(optimizer, curr_lr)
 
-            write_checkpoint(epoch)
+            self.write_checkpoint(epoch)
 
         self.model.eval()
+        """
         with torch.no_grad():
             correct = 0
             total = 0
@@ -132,3 +136,4 @@ class Trainer:
 
             print('Accuracy of the model on the test images: {} %'.format(
                 100 * correct / total))
+        """

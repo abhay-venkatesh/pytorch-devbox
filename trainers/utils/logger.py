@@ -72,18 +72,19 @@ class Logger(object):
         self.writer.add_summary(summary, step)
         self.writer.flush()
 
-    def log(self, info, step):
+    def log(self, model, info, step):
         for tag, value in info.items():
-            logger.scalar_summary(tag, value, step+1)
+            self.scalar_summary(tag, value, step + 1)
 
         # 2. Log values and gradients of the parameters (histogram summary)
         for tag, value in model.named_parameters():
             tag = tag.replace('.', '/')
-            logger.histo_summary(tag, value.data.cpu().numpy(), step+1)
-            logger.histo_summary(tag+'/grad', value.grad.data.cpu().numpy(), step + 1)
+            self.histo_summary(tag, value.data.cpu().numpy(), step + 1)
+            self.histo_summary(tag + '/grad',
+                               value.grad.data.cpu().numpy(), step + 1)
 
         # 3. Log training images (image summary)
         info = {'images': images.view(-1, 28, 28)[:10].cpu().numpy()}
 
         for tag, images in info.items():
-        self.image_summary(tag, images, step+1)
+            self.image_summary(tag, images, step + 1)

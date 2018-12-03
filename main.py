@@ -12,7 +12,7 @@ config_path = sys.argv[1]
 with open(config_path, 'r') as ymlfile:
     cfg = yaml.load(ymlfile)
 
-datagen = CocoDatagen(cfg["coco"])
+datagen = CocoDatagen(cfg)
 model = SegNet(1, 3)
-trainer = Trainer(datagen, model)
+trainer = Trainer(datagen, model, cfg)
 trainer.run()

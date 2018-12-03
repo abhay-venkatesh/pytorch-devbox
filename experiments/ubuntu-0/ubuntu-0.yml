@@ -1,4 +1,11 @@
-coco:
+name: ubuntu-0
+
+parameters:
+  batch_size: 3
+  epochs: 80
+  learning_rate: 0.001
+
+dataset:
   train: 
     root: /mnt/hdd-4tb/abhay/coco/train2017
     ann: /mnt/hdd-4tb/abhay/coco/annotations/stuff_train2017.json

@@ -1,11 +1,13 @@
 import torch
 import torchvision.transforms as transforms
 from datagens.datagen import Datagen
-from datasets.coco import CocoStuff
+from datasets.datasets.coco import CocoStuff
 
 
 class CocoDatagen(Datagen):
     def __init__(self, cfg):
+        cfg = cfg["dataset"]
+
         transform = transforms.Compose(
             [transforms.Resize([426, 640]),
              transforms.ToTensor()])

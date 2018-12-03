@@ -5,6 +5,7 @@ from pycocotools.coco import COCO
 import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
+from utils.logger import Logger
 
 
 def UnbiasedPULoss(X, A, rho=0.7):
@@ -29,22 +30,10 @@ class Trainer:
                                             is_available() else 'cpu')
         self.model = model.to(self.device)
         self.config = config
+        self.experiment_root = "./experiments/" + experiment_name + "/"
+        self.logger = Logger(self.experiment_root)
 
     def run(self, checkpoint_path):
-        experiment_name = cfg["name"]
-        parameters = cfg["parameters"]
-        num_epochs = int(parameters["epochs"])
-        batch_size = int(parameters["batch_size"])
-        learning_rate = int(parameters["learning_rate"])
-
-        if checkpoint_path:
-            epochs_done = int(checkpoint_path.split('.')[0])
-            num_epochs -= epochs_done
-            self.model.load_state_dict(torch.load(checkpoint_path))
-
-        criterion = nn.MSELoss()
-        optimizer = torch.optim.Adam(self.model.parameters(), lr=learning_rate)
-
         def update_lr(optimizer, lr):
             for param_group in optimizer.param_groups:
                 param_group['lr'] = lr
@@ -73,13 +62,32 @@ class Trainer:
                     break
             return images_, labels_
 
+        def write_checkpoint(epoch):
+            checkpoint_filename = str(epoch) + ".ckpt"
+            checkpoint_path = self.experiment_root + checkpoint_filename
+            torch.save(self.model.state_dict(), checkpoint_filename)
+
+        experiment_name = self.config["name"]
+        parameters = self.config["parameters"]
+        num_epochs = int(parameters["epochs"])
+        batch_size = int(parameters["batch_size"])
+        learning_rate = int(parameters["learning_rate"])
+
+        if checkpoint_path:
+            epochs_done = int(checkpoint_path.split('.')[1].split("/")[3])
+            num_epochs -= epochs_done
+            self.model.load_state_dict(torch.load(checkpoint_path))
+
+        criterion = nn.MSELoss()
+        optimizer = torch.optim.Adam(self.model.parameters(), lr=learning_rate)
+
         total_step = self.datagen.total_steps
         curr_lr = learning_rate
         for epoch in range(num_epochs):
             data_itr = iter(self.train_loader)
-            i = 0
+            step = 0
             for images, labels in data_itr:
-                i += 1
+                step += 1
                 images_, labels_ = build_batch(data_itr, images, labels)
                 if len(images_) < batch_size:
                     break
@@ -96,19 +104,19 @@ class Trainer:
                 loss.backward()
                 optimizer.step()
 
-                if (i + 1) % 100 == 0:
+                if (step + 1) % 100 == 0:
                     print("Epoch [{}/{}], Step [{}/{}] Loss: {:.4f}".format(
-                        epoch + 1, num_epochs, i + 1, total_step, loss.item()))
+                        epoch + 1, num_epochs, step + 1, total_step,
+                        loss.item()))
 
-                if (i + 1) % 1000 == 0:
-                    checkpoint_filename = str(epoch) + ".ckpt"
-                    checkpoint_root = "./experiments/" + experiment_name + "/"
-                    checkpoint_path = checkpoint_root + checkpoint_filename
-                    torch.save(self.model.state_dict(), checkpoint_filename) 
+                    info = {'loss': loss.item()}
+                    self.logger.log(info, step)
 
             if (epoch + 1) % 20 == 0:
                 curr_lr /= 3
                 update_lr(optimizer, curr_lr)
+
+            write_checkpoint(epoch)
 
         self.model.eval()
         with torch.no_grad():

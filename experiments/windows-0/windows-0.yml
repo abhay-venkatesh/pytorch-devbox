@@ -5,7 +5,7 @@ parameters:
   epochs: 80
   learning_rate: 0.001
 
-coco:
+dataset:
   train: 
     root: ../../data/coco/train2017
     ann: ../../data/coco/annotations/stuff_train2017.json

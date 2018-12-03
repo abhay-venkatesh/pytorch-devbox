@@ -1,7 +1,7 @@
 import torch
 import torchvision.transforms as transforms
 from datagens.datagen import Datagen
-from datasets.datasets.coco import CocoStuff
+from datagens.datasets.coco import CocoStuff
 
 
 class CocoDatagen(Datagen):
@@ -16,7 +16,7 @@ class CocoDatagen(Datagen):
             root=cfg["train"]["root"],
             annFile=cfg["train"]["ann"],
             transform=transform)
-            
+
         self.total_steps = train_dataset.total_steps
 
         test_dataset = CocoStuff(

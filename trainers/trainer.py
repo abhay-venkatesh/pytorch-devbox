@@ -21,22 +21,26 @@ def UnbiasedPULoss(X, A, rho=0.7):
 
 
 class Trainer:
-    def __init__(self, datagen, model):
+    def __init__(self, datagen, model, config):
         self.datagen = datagen
         self.train_loader = datagen.train_loader
         self.test_loader = datagen.test_loader
         self.device = device = torch.device('cuda' if torch.cuda.
                                             is_available() else 'cpu')
         self.model = model.to(self.device)
+        self.config = config
 
-    def run(self, cfg, checkpoint_path):
+    def run(self, checkpoint_path):
         experiment_name = cfg["name"]
         parameters = cfg["parameters"]
         num_epochs = int(parameters["epochs"])
         batch_size = int(parameters["batch_size"])
         learning_rate = int(parameters["learning_rate"])
 
-        self.model.load_state_dict(torch.load(checkpoint_path))
+        if checkpoint_path:
+            epochs_done = int(checkpoint_path.split('.')[0])
+            num_epochs -= epochs_done
+            self.model.load_state_dict(torch.load(checkpoint_path))
 
         criterion = nn.MSELoss()
         optimizer = torch.optim.Adam(self.model.parameters(), lr=learning_rate)
@@ -47,7 +51,6 @@ class Trainer:
 
         def print_image():
             mask = squeezed.numpy()
-            print(mask)
             mask_ = np.multiply(mask, 200)
             Image.fromarray(mask_).show()
             seg.show()
@@ -97,9 +100,9 @@ class Trainer:
                     print("Epoch [{}/{}], Step [{}/{}] Loss: {:.4f}".format(
                         epoch + 1, num_epochs, i + 1, total_step, loss.item()))
 
-                # Save the model checkpoint
                 if (i + 1) % 1000 == 0:
-                    checkpoint_filename = experiment_name + "-" + str(epoch) + ".ckpt"
+                    checkpoint_filename = str(epoch) + ".ckpt"
+                    checkpoint_root = "./experiments/" + experiment_name + "/"
                     checkpoint_path = checkpoint_root + checkpoint_filename
                     torch.save(self.model.state_dict(), checkpoint_filename) 
 

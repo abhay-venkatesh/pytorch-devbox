@@ -1,3 +1,10 @@
+name: windows-0
+
+parameters:
+  batch_size: 3
+  epochs: 80
+  learning_rate: 0.001
+
 coco:
   train: 
     root: ../../data/coco/train2017

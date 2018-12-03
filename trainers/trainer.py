@@ -18,19 +18,19 @@ class Batcher:
 
     def __next__(self):
         images, labels = [], []
-        while len(images_) < batch_size:
+        while len(images) < self.batch_size:
             try:
-                image, label = next(data_itr)
+                image, label = next(self.loader)
                 comp_tensor = torch.ones((1), dtype=torch.long)
                 if torch.eq(label[1], comp_tensor):
                     images.extend(image)
                     labels.append(label[0])
             except StopIteration:
                 break
-        if len(images) < batch_size:
+        if len(images) < self.batch_size:
             raise StopIteration
         else:
-            return images, labels
+            return torch.stack(images), torch.stack(labels)
 
 
 def UnbiasedPULoss(X, A, rho=0.7):
@@ -93,10 +93,11 @@ class Trainer:
         total_step = self.datagen.total_steps
         curr_lr = learning_rate
         for epoch in range(num_epochs):
-            batcher = Batcher(self.train_loader)
-            for step, images, labels in enumerate(batcher):
-                images = torch.stack(images_)
-                labels = torch.stack(labels_)
+            batcher = Batcher(self.train_loader, batch_size)
+            step = 0
+            for images, labels in batcher:
+                step += 1
+
                 images = images.to(self.device)
                 labels = labels.to(self.device)
 
@@ -113,7 +114,7 @@ class Trainer:
                         loss.item()))
 
                     info = {'loss': loss.item()}
-                    self.logger.log(model, info, step)
+                    self.logger.log(self.model, info, step)
 
             if (epoch + 1) % 20 == 0:
                 curr_lr /= 3
@@ -122,7 +123,8 @@ class Trainer:
             self.write_checkpoint(epoch)
 
         self.model.eval()
-        """
+
+    def test(self, model):
         with torch.no_grad():
             correct = 0
             total = 0
@@ -136,4 +138,3 @@ class Trainer:
 
             print('Accuracy of the model on the test images: {} %'.format(
                 100 * correct / total))
-        """

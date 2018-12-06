@@ -10,18 +10,18 @@ import torchvision.transforms as transforms
 
 class Trainer:
     def __init__(self, datagen, model, config):
+        self.config = config
         self.datagen = datagen
-        self.train_loader = datagen.train_loader
-        self.test_loader = datagen.test_loader
         self.device = torch.device('cuda' if torch.cuda.
                                    is_available() else 'cpu')
-        self.model = model.to(self.device)
-        self.config = config
-        self.parameters = self.config["parameters"]
         self.experiment_name = self.config["name"]
         self.experiment_root = "./experiments/" + self.experiment_name + "/"
         self.log_path = self.experiment_root + "/logs/"
         self.logger = Logger(self.log_path)
+        self.model = model.to(self.device)
+        self.parameters = self.config["parameters"]
+        self.test_loader = self.datagen.test_loader
+        self.train_loader = self.datagen.train_loader
 
     def write_checkpoint(self, epoch):
         checkpoint_filename = str(epoch) + ".ckpt"

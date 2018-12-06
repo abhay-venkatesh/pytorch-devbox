@@ -34,7 +34,9 @@ class Batcher:
 
 
 def UnbiasedPULoss(X, A, rho=0.7):
-    """ X: outputs
+    """ Note: This must be constrained.
+    
+        X: outputs
         A: labels
         rho: noise rate """
     X_ = (X - 1).pow(2)

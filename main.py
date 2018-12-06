@@ -1,6 +1,6 @@
 from datagens.cocostuff import CocoStuffDatagen
 from models.segnet import SegNet
-from trainers.trainer import Trainer
+from trainers.cocostuff_trainer import Trainer
 import sys
 import yaml
 

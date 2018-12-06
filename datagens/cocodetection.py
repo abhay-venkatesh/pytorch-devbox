@@ -17,8 +17,6 @@ class CocoDetectionDatagen(Datagen):
             annFile=cfg["train"]["ann"],
             transform=transform)
 
-        self.total_steps = train_dataset.total_steps
-
         test_dataset = CocoDetection(
             root=cfg["test"]["root"],
             annFile=cfg["test"]["ann"],

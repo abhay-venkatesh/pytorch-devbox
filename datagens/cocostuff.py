@@ -16,6 +16,8 @@ class CocoStuffDatagen(Datagen):
             root=cfg["train"]["root"],
             annFile=cfg["train"]["ann"],
             transform=transform)
+            
+        self.total_steps = train_dataset.total_steps
 
         test_dataset = CocoStuff(
             root=cfg["test"]["root"],

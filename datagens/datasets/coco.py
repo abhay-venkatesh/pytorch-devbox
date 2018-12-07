@@ -11,16 +11,11 @@ import torch.utils.data as data
 import torchvision.transforms as transforms
 
 
-class CocoSky(data.Dataset):
-    def __init__(self,
-                 root,
-                 ann_file_path,
-                 transform=None,
-                 target_transform=None):
+class CocoPU(data.Dataset):
+    def __init__(self, root, ann_file_path, transform=None):
         self.root = root
-        self.image_names = []
+        self.img_names = []
         self.transform = transform
-        self.target_transform = target_transform
         with open(ann_file_path, newline='') as ann_file:
             reader = csv.reader(ann_file, delimiter=',')
             for row in reader:
@@ -33,9 +28,21 @@ class CocoSky(data.Dataset):
         Returns:
             tuple: Tuple (image, target). target is a list of captions for the image.
         """
+        img_name = self.img_names[index]
+        img_path = os.path.join(self.root, "images", img_name)
+        img = Image.open(img_path).convert('RGB')
+        seg_path = os.path.join(self.root, "annotations", img_name)
+        seg = Image.open(seg_path)
+        bbox_path = os.path.join(self.root, "bbox", img_name)
+        bbox = Image.open(bbox_path)
+
+        img = self.transform(img)
+        seg = self.transform(seg)
+        bbox = self.transform(seg)
+        return img, (seg, bbox)
 
     def __len__(self):
-        return len(self.image_names)
+        return len(self.img_names)
 
 
 class CocoStuff(data.Dataset):

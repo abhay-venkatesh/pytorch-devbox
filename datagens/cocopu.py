@@ -1,10 +1,10 @@
 import torch
 import torchvision.transforms as transforms
 from datagens.datagen import Datagen
-from datagens.datasets.coco import CocoStuff
+from datagens.datasets.coco import CocoSky
 
 
-class CocoStuffDatagen(Datagen):
+class CocoPUDatagen(Datagen):
     def __init__(self, cfg):
         cfg = cfg["dataset"]
 
@@ -12,14 +12,12 @@ class CocoStuffDatagen(Datagen):
             [transforms.Resize([426, 640]),
              transforms.ToTensor()])
 
-        train_dataset = CocoStuff(
+        train_dataset = CocoSky(
             root=cfg["train"]["root"],
             annFile=cfg["train"]["ann"],
             transform=transform)
             
-        self.total_steps = train_dataset.total_steps
-
-        test_dataset = CocoStuff(
+        test_dataset = CocoSky(
             root=cfg["test"]["root"],
             annFile=cfg["test"]["ann"],
             transform=transform)

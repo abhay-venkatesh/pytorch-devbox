@@ -1,0 +1,14 @@
+name: sky-windows
+
+parameters:
+  batch_size: 3
+  epochs: 80
+  learning_rate: 0.001
+
+dataset:
+  train: 
+    root: ../../data/coco/train2017
+    ann: ../../data/coco/annotations/stuff_train2017.json
+  test:
+    root: ../../data/coco/val2017
+    ann: ../../data/coco/annotations/stuff_val2017.json

@@ -1,13 +1,41 @@
 # Reference: https://github.com/pytorch/vision/blob/master/torchvision/datasets/coco.py
 
+from PIL import Image, ImageDraw
+from skimage.transform import resize
+import csv
 import numpy as np
 import os
 import os.path
-from PIL import Image, ImageDraw
-from skimage.transform import resize
 import torch
 import torch.utils.data as data
 import torchvision.transforms as transforms
+
+
+class CocoSky(data.Dataset):
+    def __init__(self,
+                 root,
+                 ann_file_path,
+                 transform=None,
+                 target_transform=None):
+        self.root = root
+        self.image_names = []
+        self.transform = transform
+        self.target_transform = target_transform
+        with open(ann_file_path, newline='') as ann_file:
+            reader = csv.reader(ann_file, delimiter=',')
+            for row in reader:
+                self.image_names.append(row[0])
+
+    def __getitem__(self, index):
+        """
+        Args:
+            index (int): Index
+        Returns:
+            tuple: Tuple (image, target). target is a list of captions for the image.
+        """
+
+    def __len__(self):
+        return len(self.image_names)
 
 
 class CocoStuff(data.Dataset):

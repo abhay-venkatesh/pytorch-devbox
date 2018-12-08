@@ -1,9 +1,12 @@
+import os
+import torch
+
+
 class TrainerBase:
-    def load_checkpoint(checkpoint_path):
+    def load_checkpoint(self, checkpoint_path):
         epochs_done = 0
         if checkpoint_path:
             epochs_done = int(checkpoint_path.split('.')[1].split("/")[4])
-            num_epochs -= epochs_done
             self.model.load_state_dict(torch.load(checkpoint_path))
         return epochs_done
 

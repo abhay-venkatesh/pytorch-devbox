@@ -64,7 +64,7 @@ class Trainer(TrainerBase):
         num_epochs = int(self.parameters["epochs"])
         learning_rate = int(self.parameters["learning_rate"])
 
-        num_epochs -= load_checkpoint(checkpoint_path)
+        num_epochs -= self.load_checkpoint(checkpoint_path)
 
         criterion = CrossEntropyLoss2d()
         optimizer = torch.optim.Adam(self.model.parameters(), lr=learning_rate)

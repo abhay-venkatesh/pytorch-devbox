@@ -1,11 +1,22 @@
 from PIL import Image
+from pycocotools.coco import COCO
+from trainers.utils.logger import Logger
 import numpy as np
 import os.path
-from pycocotools.coco import COCO
 import torch
 import torch.nn as nn
+import torch.nn as nn
+import torch.nn.functional as F
 import torchvision.transforms as transforms
-from trainers.utils.logger import Logger
+
+
+class CrossEntropyLoss2d(nn.Module):
+    def __init__(self, weight=None, size_average=True, ignore_index=-1):
+        super(CrossEntropyLoss2d, self).__init__()
+        self.nll_loss = nn.NLLLoss(weight, size_average, ignore_index)
+
+    def forward(self, inputs, targets):
+        return self.nll_loss(F.log_softmax(inputs, dim=1), targets)
 
 
 def UnbiasedPULoss(X, A, rho=0.7):
@@ -63,15 +74,15 @@ class Trainer:
             num_epochs -= epochs_done
             self.model.load_state_dict(torch.load(checkpoint_path))
 
-        criterion = nn.MSELoss()
+        criterion = nn.CrossEntropyLoss2d()
         optimizer = torch.optim.Adam(self.model.parameters(), lr=learning_rate)
 
         total_step = self.datagen.total_steps
         curr_lr = learning_rate
         for epoch in range(num_epochs):
-            batcher = Batcher(self.train_loader, batch_size)
             step = 0
-            for images, labels in batcher:
+            for images, labels in self.train_loader:
+                print(images, labels)
                 step += 1
 
                 images = images.to(self.device)

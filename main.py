@@ -1,6 +1,6 @@
-from datagens.cocostuff import CocoStuffDatagen
+from datagens.cocobbox import CocoBboxDatagen
 from models.segnet import SegNet
-from trainers.cocostuff_trainer import Trainer
+from trainers.cocobbox_trainer import Trainer
 import sys
 import yaml
 
@@ -19,7 +19,7 @@ checkpoint_path = None
 if len(sys.argv) > 2:
     checkpoint_path = sys.argv[2]
 
-datagen = CocoStuffDatagen(config)
+datagen = CocoBboxDatagen(config)
 model = SegNet(1, 3)
 trainer = Trainer(datagen, model, config)
 trainer.run(checkpoint_path)

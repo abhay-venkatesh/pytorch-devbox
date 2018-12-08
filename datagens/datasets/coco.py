@@ -11,7 +11,7 @@ import torch.utils.data as data
 import torchvision.transforms as transforms
 
 
-class CocoPU(data.Dataset):
+class CocoBbox(data.Dataset):
     def __init__(self, root, ann_file_path, transform=None):
         self.root = root
         self.img_names = []

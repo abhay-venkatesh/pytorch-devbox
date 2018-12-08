@@ -1,4 +1,4 @@
-name: sky-windows
+name: 
 
 parameters:
   batch_size: 3
@@ -7,8 +7,8 @@ parameters:
 
 dataset:
   train: 
-    root: ../../data/coco/train2017
+    root: ../../data/cocostuff/filtered/train2017
     ann: ../../data/coco/annotations/stuff_train2017.json
   test:
-    root: ../../data/coco/val2017
+    root: ../../data/cocostuff/filtered/val2017
     ann: ../../data/coco/annotations/stuff_val2017.json

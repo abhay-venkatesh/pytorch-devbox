@@ -66,7 +66,7 @@ class Trainer(TrainerBase):
         learning_rate = int(self.parameters["learning_rate"])
 
         if checkpoint_path:
-            epochs_done = int(checkpoint_path.split('.')[1].split("/")[3])
+            epochs_done = int(checkpoint_path.split('.')[1].split("/")[4])
             num_epochs -= epochs_done
             self.model.load_state_dict(torch.load(checkpoint_path))
 

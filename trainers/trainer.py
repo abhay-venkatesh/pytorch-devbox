@@ -1,6 +1,6 @@
 class TrainerBase:
     def write_checkpoint(self, epoch):
-        checkpoint_filename = str(epoch) + ".ckpt"
+        checkpoint_filename = str(epoch + 1) + ".ckpt"
         checkpoint_path = (
             self.experiment_root + "checkpoints/" + checkpoint_filename)
         if not os.path.exists(self.experiment_root + "checkpoints/"):

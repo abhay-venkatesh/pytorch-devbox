@@ -1,0 +1,14 @@
+name: unbiased-sky-ubuntu
+
+parameters:
+  batch_size: 5
+  epochs: 80
+  learning_rate: 0.001
+
+dataset:
+  train: 
+    root: /mnt/hdd-4tb/abhay/cocostuff/filtered/train2017
+    ann: /mnt/hdd-4tb/abhay/cocostuff/filtered/train2017/annotations.csv
+  test:
+    root: /mnt/hdd-4tb/abhay/cocostuff/filtered/val2017
+    ann: /mnt/hdd-4tb/abhay/cocostuff/filtered/val2017/annotations.csv

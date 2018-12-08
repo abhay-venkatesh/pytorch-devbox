@@ -74,22 +74,22 @@ class Trainer:
             num_epochs -= epochs_done
             self.model.load_state_dict(torch.load(checkpoint_path))
 
-        criterion = nn.CrossEntropyLoss2d()
+        criterion = CrossEntropyLoss2d()
         optimizer = torch.optim.Adam(self.model.parameters(), lr=learning_rate)
 
-        total_step = self.datagen.total_steps
+        total_step = len(self.train_loader)
         curr_lr = learning_rate
         for epoch in range(num_epochs):
             step = 0
             for images, labels in self.train_loader:
-                print(images, labels)
                 step += 1
-
+                
+                bboxes = labels[1].long().squeeze(1)
                 images = images.to(self.device)
-                labels = labels.to(self.device)
+                bboxes = bboxes.to(self.device)
 
                 outputs = self.model(images)
-                loss = criterion(outputs, labels)
+                loss = criterion(outputs, bboxes)
 
                 optimizer.zero_grad()
                 loss.backward()
@@ -109,13 +109,14 @@ class Trainer:
 
             self.write_checkpoint(epoch)
 
-        self.model.eval()
-
     def test(self, model):
+        self.model.eval()
         with torch.no_grad():
             correct = 0
             total = 0
             for images, labels in self.test_loader:
+                labels = labels[0]
+                
                 images = images.to(self.device)
                 labels = labels.to(self.device)
                 outputs = self.model(images)

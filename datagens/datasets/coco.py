@@ -19,7 +19,7 @@ class CocoBbox(data.Dataset):
         with open(ann_file_path, newline='') as ann_file:
             reader = csv.reader(ann_file, delimiter=',')
             for row in reader:
-                self.image_names.append(row[0])
+                self.img_names.append(row[0])
 
     def __getitem__(self, index):
         """
@@ -29,16 +29,17 @@ class CocoBbox(data.Dataset):
             tuple: Tuple (image, target). target is a list of captions for the image.
         """
         img_name = self.img_names[index]
-        img_path = os.path.join(self.root, "images", img_name)
+        img_path = self.root + "/images/" + img_name
         img = Image.open(img_path).convert('RGB')
-        seg_path = os.path.join(self.root, "annotations", img_name)
+        seg_name = img_name.replace(".jpg", ".png")
+        seg_path = self.root + "/annotations/" + seg_name
         seg = Image.open(seg_path)
-        bbox_path = os.path.join(self.root, "bbox", img_name)
+        bbox_path = self.root + "/bbox/" + seg_name
         bbox = Image.open(bbox_path)
 
         img = self.transform(img)
         seg = self.transform(seg)
-        bbox = self.transform(seg)
+        bbox = self.transform(bbox)
         return img, (seg, bbox)
 
     def __len__(self):

@@ -6,8 +6,8 @@ from datagens.datasets.coco import CocoBbox
 
 class CocoBboxDatagen(Datagen):
     def __init__(self, cfg):
-        cfg = cfg["dataset"]
         batch_size = int(cfg["parameters"]["batch_size"])
+        cfg = cfg["dataset"]
 
         transform = transforms.Compose(
             [transforms.Resize([426, 640]),
@@ -15,12 +15,12 @@ class CocoBboxDatagen(Datagen):
 
         train_dataset = CocoBbox(
             root=cfg["train"]["root"],
-            annFile=cfg["train"]["ann"],
+            ann_file_path=cfg["train"]["ann"],
             transform=transform)
             
         test_dataset = CocoBbox(
             root=cfg["test"]["root"],
-            annFile=cfg["test"]["ann"],
+            ann_file_path=cfg["test"]["ann"],
             transform=transform)
 
         self.train_loader = torch.utils.data.DataLoader(

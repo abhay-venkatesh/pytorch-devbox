@@ -9,4 +9,3 @@ conda install pytorch torchvision -c pytorch
 conda install --file requirements.txt
 
 # Install COCO API
-conda install -c hcc pycocotools

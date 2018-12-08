@@ -1,7 +1,7 @@
 from PIL import Image
 from pycocotools.coco import COCO
-from trainers.utils.logger import Logger
 from trainers.trainer import TrainerBase
+from trainers.utils.logger import Logger
 import numpy as np
 import os.path
 import torch
@@ -60,15 +60,11 @@ class Trainer(TrainerBase):
         Image.fromarray(mask_).show()
         seg.show()
 
-
     def run(self, checkpoint_path):
         num_epochs = int(self.parameters["epochs"])
         learning_rate = int(self.parameters["learning_rate"])
 
-        if checkpoint_path:
-            epochs_done = int(checkpoint_path.split('.')[1].split("/")[4])
-            num_epochs -= epochs_done
-            self.model.load_state_dict(torch.load(checkpoint_path))
+        num_epochs -= load_checkpoint(checkpoint_path)
 
         criterion = CrossEntropyLoss2d()
         optimizer = torch.optim.Adam(self.model.parameters(), lr=learning_rate)
@@ -79,7 +75,7 @@ class Trainer(TrainerBase):
             step = 0
             for images, labels in self.train_loader:
                 step += 1
-                
+
                 bboxes = labels[1].long().squeeze(1)
                 images = images.to(self.device)
                 bboxes = bboxes.to(self.device)
@@ -112,7 +108,7 @@ class Trainer(TrainerBase):
             total = 0
             for images, labels in self.test_loader:
                 labels = labels[0]
-                
+
                 images = images.to(self.device)
                 labels = labels.to(self.device)
                 outputs = self.model(images)

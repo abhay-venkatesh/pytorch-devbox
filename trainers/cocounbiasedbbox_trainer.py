@@ -1,5 +1,6 @@
 from PIL import Image
 from pycocotools.coco import COCO
+from trainers.trainer import TrainerBase
 from trainers.utils.logger import Logger
 import numpy as np
 import os.path
@@ -42,7 +43,7 @@ def UnconstrainedPULoss(X, A, rho=0.7):
     return loss.sum()
 
 
-class Trainer:
+class Trainer(TrainerBase):
     def __init__(self, datagen, model, config):
         self.datagen = datagen
         self.train_loader = datagen.train_loader
@@ -67,22 +68,12 @@ class Trainer:
         Image.fromarray(mask_).show()
         seg.show()
 
-    def write_checkpoint(self, epoch):
-        checkpoint_filename = str(epoch) + ".ckpt"
-        checkpoint_path = (
-            self.experiment_root + "checkpoints/" + checkpoint_filename)
-        torch.save(self.model.state_dict(), checkpoint_filename)
-
     def run(self, checkpoint_path):
         num_epochs = int(self.parameters["epochs"])
         learning_rate = int(self.parameters["learning_rate"])
 
-        if checkpoint_path:
-            epochs_done = int(checkpoint_path.split('.')[1].split("/")[3])
-            num_epochs -= epochs_done
-            self.model.load_state_dict(torch.load(checkpoint_path))
+        num_epochs -= load_checkpoint(checkpoint_path)
 
-        # criterion = CrossEntropyLoss2d()
         optimizer = torch.optim.Adam(self.model.parameters(), lr=learning_rate)
 
         total_step = len(self.train_loader)

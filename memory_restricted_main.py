@@ -22,7 +22,7 @@ def get_memory():
     return free_memory
 
 
-def main(config):
+def main(config, checkpoint_path):
     datagen = CocoBboxDatagen(config)
     vgg16 = models.vgg16(pretrained=True)
     model = SegNet(2, 3)

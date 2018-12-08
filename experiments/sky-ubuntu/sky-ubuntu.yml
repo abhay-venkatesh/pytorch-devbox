@@ -8,7 +8,7 @@ parameters:
 dataset:
   train: 
     root: /mnt/hdd-4tb/abhay/cocostuff/filtered/train2017
-    root: /mnt/hdd-4tb/abhay/cocostuff/filtered/train2017/annotations.csv
+    ann: /mnt/hdd-4tb/abhay/cocostuff/filtered/train2017/annotations.csv
   test:
     root: /mnt/hdd-4tb/abhay/cocostuff/filtered/val2017
-    root: /mnt/hdd-4tb/abhay/cocostuff/filtered/val2017/annotations.csv
+    ann: /mnt/hdd-4tb/abhay/cocostuff/filtered/val2017/annotations.csv

@@ -31,15 +31,24 @@ class CocoBbox(data.Dataset):
         img_name = self.img_names[index]
         img_path = self.root + "/images/" + img_name
         img = Image.open(img_path).convert('RGB')
+        img = img.resize((640, 426), Image.ANTIALIAS)
+        img = transforms.ToTensor()(img)
+
         seg_name = img_name.replace(".jpg", ".png")
         seg_path = self.root + "/annotations/" + seg_name
         seg = Image.open(seg_path)
+        S = np.array(seg)
+        S = resize(S, (426, 640), anti_aliasing=False, mode='constant')
+        S = np.where(S > 0, 1, 0)
+        seg = torch.from_numpy(S)
+
         bbox_path = self.root + "/bbox/" + seg_name
         bbox = Image.open(bbox_path)
+        B = np.array(bbox)
+        B = resize(B, (426, 640), anti_aliasing=False, mode='constant')
+        B = np.where(B > 0, 1, 0)
+        bbox = torch.from_numpy(B)
 
-        img = self.transform(img)
-        seg = self.transform(seg)
-        bbox = self.transform(bbox)
         return img, (seg, bbox)
 
     def __len__(self):

@@ -76,7 +76,8 @@ class Trainer(TrainerBase):
             for images, labels in self.train_loader:
                 step += 1
 
-                bboxes = labels[1].long().squeeze(1)
+                bboxes = labels[0].long().squeeze(1)
+
                 images = images.to(self.device)
                 bboxes = bboxes.to(self.device)
 
@@ -86,6 +87,10 @@ class Trainer(TrainerBase):
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
+                
+                print("Epoch [{}/{}], Step [{}/{}] Loss: {:.4f}".format(
+                    epoch + 1, num_epochs, step + 1, total_step,
+                    loss.item()))
 
                 if (step + 1) % 100 == 0:
                     print("Epoch [{}/{}], Step [{}/{}] Loss: {:.4f}".format(

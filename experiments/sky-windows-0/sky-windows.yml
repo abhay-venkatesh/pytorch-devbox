@@ -1,0 +1,14 @@
+name: sky-windows
+
+parameters:
+  batch_size: 3
+  epochs: 80
+  learning_rate: 0.001
+
+dataset:
+  train: 
+    root: ../../data/cocostuff/filtered/train2017
+    ann: ../../data/cocostuff/filtered/train2017/annotations.csv
+  test:
+    root: ../../data/cocostuff/filtered/val2017
+    ann: ../../data/cocostuff/filtered/val2017/annotations.csv

@@ -76,7 +76,15 @@ class Trainer(TrainerBase):
             for images, labels in self.train_loader:
                 step += 1
 
-                bboxes = labels[1].long().squeeze(1)
+                bboxes = labels[0].long().squeeze(1)
+                for image, bbox in zip(images, bboxes):
+                    img = transforms.ToPILImage()(image)
+                    img.show()
+                    I = torch.Tensor.numpy(bbox)
+                    seg = Image.fromarray(np.uint8(I)*255)
+                    seg.show()
+                    input("Press Enter to continue...")
+
                 images = images.to(self.device)
                 bboxes = bboxes.to(self.device)
 

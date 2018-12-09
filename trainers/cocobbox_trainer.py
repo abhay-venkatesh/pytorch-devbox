@@ -77,13 +77,6 @@ class Trainer(TrainerBase):
                 step += 1
 
                 bboxes = labels[0].long().squeeze(1)
-                for image, bbox in zip(images, bboxes):
-                    img = transforms.ToPILImage()(image)
-                    img.show()
-                    I = torch.Tensor.numpy(bbox)
-                    seg = Image.fromarray(np.uint8(I)*255)
-                    seg.show()
-                    input("Press Enter to continue...")
 
                 images = images.to(self.device)
                 bboxes = bboxes.to(self.device)
@@ -94,6 +87,10 @@ class Trainer(TrainerBase):
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
+                
+                print("Epoch [{}/{}], Step [{}/{}] Loss: {:.4f}".format(
+                    epoch + 1, num_epochs, step + 1, total_step,
+                    loss.item()))
 
                 if (step + 1) % 100 == 0:
                     print("Epoch [{}/{}], Step [{}/{}] Loss: {:.4f}".format(
